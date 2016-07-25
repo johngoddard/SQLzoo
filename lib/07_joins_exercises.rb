@@ -111,7 +111,6 @@ def travoltas_busiest_years
     movies.yr
   HAVING
     count(movies.title) > 1
-
   SQL
 end
 
@@ -119,6 +118,23 @@ def andrews_films_and_leads
   # List the film title and the leading actor for all of the films 'Julie
   # Andrews' played in.
   execute(<<-SQL)
+  SELECT
+    movies.title,
+    actors.name
+  FROM
+    movies
+  JOIN
+    castings julie_andrews_castings ON movies.id = julie_andrews_castings.movie_id
+  JOIN
+    actors julie_andrews ON julie_andrews_castings.actor_id = julie_andrews.id
+  JOIN
+    castings ON castings.movie_id = julie_andrews_castings.movie_id
+  JOIN
+    actors ON castings.actor_id = actors.id
+  WHERE
+    julie_andrews.name = 'Julie Andrews'
+    AND
+    castings.ord = 1
   SQL
 end
 
@@ -126,6 +142,20 @@ def prolific_actors
   # Obtain a list in alphabetical order of actors who've had at least 15
   # starring roles.
   execute(<<-SQL)
+  SELECT
+    actors.name
+  FROM
+    actors
+  JOIN
+    castings ON castings.actor_id = actors.id
+  WHERE
+    castings.ord = 1
+  GROUP BY
+    actors.name
+  HAVING
+    COUNT(*) >= 15
+  ORDER BY
+    actors.name ASC
   SQL
 end
 
@@ -133,11 +163,64 @@ def films_by_cast_size
   # List the films released in the year 1978 ordered by the number of actors
   # in the cast (descending), then by title (ascending).
   execute(<<-SQL)
+  SELECT
+    title,
+    count(castings.actor_id)
+  FROM
+    movies
+  JOIN
+    castings ON movies.id = castings.movie_id
+  WHERE
+    yr = 1978
+  GROUP BY
+    title
+  ORDER BY
+    count(castings.actor_id) DESC,
+    title
+
+
+
+
   SQL
 end
 
 def colleagues_of_garfunkel
   # List all the people who have played alongside 'Art Garfunkel'.
   execute(<<-SQL)
+  SELECT
+    actors.name
+  FROM
+    castings art_garfunkel_castings
+  JOIN
+      actors art_garfunkel ON art_garfunkel_castings.actor_id = art_garfunkel.id
+      /*gives every row in casting that art garfunkel is in   */
+  JOIN
+      castings ON art_garfunkel_castings.movie_id = castings.movie_id
+  JOIN
+      actors ON castings.actor_id = actors.id
+
+  WHERE
+    art_garfunkel.name = 'Art Garfunkel'
+    AND actors.name != 'Art Garfunkel'
+  -- SELECT
+  --   actors.name
+  -- FROM
+  --   castings
+  -- JOIN
+  --   actors on castings.actor_id = actors.id
+  -- WHERE
+  --   castings.movie_id in (
+  --     SELECT
+  --       ag_castings.movie_id
+  --     FROM
+  --       castings ag_castings
+  --     JOIN
+  --       actors ag on ag_castings.actor_id = ag.id
+  --     WHERE
+  --       ag.name = 'Art Garfunkel'
+  --   )
+  --   AND
+  --     actors.name != 'Art Garfunkel'
   SQL
+
 end
