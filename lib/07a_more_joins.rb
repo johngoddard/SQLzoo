@@ -210,41 +210,30 @@ def expensive_tastes
 
   execute(<<-SQL)
   SELECT
-  styles.style,
-  SUM(tracks_by_album.price ) / SUM(tracks_by_album.num_tracks)
+    styles.style,
+    SUM(tracks_by_album.price ) / SUM(tracks_by_album.num_tracks)
   FROM
-  styles
-  JOIN
-  (
-  SELECT
-    albums.asin,
-    albums.price,
-    COUNT(*)num_tracks
-
-  FROM
-    albums
-  JOIN
-    tracks ON albums.asin = tracks.album
-
-  WHERE
-    albums.price is not null
-  GROUP BY
-    albums.asin,
-    albums.price
-  ) tracks_by_album ON tracks_by_album.asin = styles.album
-
-
-
+    styles
+  JOIN (
+    SELECT
+      albums.asin,
+      albums.price,
+      COUNT(*)num_tracks
+    FROM
+      albums
+    JOIN
+      tracks ON albums.asin = tracks.album
+    WHERE
+      albums.price is not null
+    GROUP BY
+      albums.asin,
+      albums.price
+    ) tracks_by_album ON tracks_by_album.asin = styles.album
   GROUP BY
     styles.style
   ORDER BY
-  SUM(tracks_by_album.price ) / SUM(tracks_by_album.num_tracks) DESC
+    SUM(tracks_by_album.price ) / SUM(tracks_by_album.num_tracks) DESC
   LIMIT
-  5
-
-
-
-
-
+    5
   SQL
 end
