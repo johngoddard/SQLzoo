@@ -119,6 +119,7 @@ def cl_to_lr
      a.stop_id = 53
      AND
      b.stop_id = 149
+
   SQL
 end
 
@@ -234,5 +235,26 @@ def craiglockhart_to_sighthill
   # Sighthill. Show the bus no. and company for the first bus, the name of the
   # stop for the transfer, and the bus no. and company for the second bus.
   execute(<<-SQL)
+  SELECT
+    DISTINCT start.num,
+    start.company,
+    stops.name,
+    finish.num,
+    finish.company
+  FROM
+    routes start
+  INNER JOIN
+    routes to_transfer ON (start.company = to_transfer.company AND start.num = to_transfer.num)
+  INNER JOIN
+    routes from_transfer ON to_transfer.stop_id = from_transfer.stop_id
+  INNER JOIN
+    routes finish ON (from_transfer.company = finish.company AND from_transfer.num = finish.num)
+  INNER JOIN
+    stops ON from_transfer.stop_id = stops.id
+
+  WHERE
+  start.stop_id = 53 AND
+  finish.stop_id = 213
+
   SQL
 end
