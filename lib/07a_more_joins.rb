@@ -209,31 +209,30 @@ def expensive_tastes
   # determine the average price per track.
 
   execute(<<-SQL)
-  SELECT
-    styles.style,
-    SUM(tracks_by_album.price ) / SUM(tracks_by_album.num_tracks)
-  FROM
-    styles
-  JOIN (
     SELECT
-      albums.asin,
-      albums.price,
-      COUNT(*)num_tracks
+      s.style,
+      SUM(tracks_by_album.price ) / SUM(tracks_by_album.num_tracks) ppt
     FROM
-      albums
-    JOIN
-      tracks ON albums.asin = tracks.album
-    WHERE
-      albums.price is not null
+      styles s
+    JOIN (
+      SELECT
+        a.asin,
+        a.price,
+        count(*) AS num_tracks
+      FROM
+        albums a
+      JOIN
+        tracks t ON a.asin = t.album
+      WHERE
+        a.price is not null
+      GROUP BY
+        a.asin, a.price
+    ) tracks_by_album ON tracks_by_album.asin = s.album
     GROUP BY
-      albums.asin,
-      albums.price
-    ) tracks_by_album ON tracks_by_album.asin = styles.album
-  GROUP BY
-    styles.style
-  ORDER BY
-    SUM(tracks_by_album.price ) / SUM(tracks_by_album.num_tracks) DESC
-  LIMIT
-    5
+      s.style
+    ORDER BY
+      ppt DEsc
+    LIMIT
+      5
   SQL
 end

@@ -218,15 +218,15 @@ def start_at_craiglockhart
     a.company,
     a.num
   FROM
-    stops stopa
+    stops stopb
   JOIN
-    routes a ON stopa.id = a.stop_id
+    routes a on a.stop_id = stopb.id
   JOIN
-    routes b ON (a.company = b.company AND a.num = b.num)
+    routes b on (a.company = b.company AND a.num = b.num)
   JOIN
-    stops stopb ON stopb.id = b.stop_id
+    stops cl on cl.id = b.stop_id
   WHERE
-    stopa.name = 'Craiglockhart'
+    cl.name = 'Craiglockhart'
   SQL
 end
 
@@ -236,25 +236,28 @@ def craiglockhart_to_sighthill
   # stop for the transfer, and the bus no. and company for the second bus.
   execute(<<-SQL)
   SELECT
-    DISTINCT start.num,
-    start.company,
-    stops.name,
-    finish.num,
-    finish.company
+    DISTINCT
+    from_first.num,
+    from_first.company,
+    t.name,
+    to_second.num,
+    to_second.company
   FROM
-    routes start
-  INNER JOIN
-    routes to_transfer ON (start.company = to_transfer.company AND start.num = to_transfer.num)
-  INNER JOIN
-    routes from_transfer ON to_transfer.stop_id = from_transfer.stop_id
-  INNER JOIN
-    routes finish ON (from_transfer.company = finish.company AND from_transfer.num = finish.num)
-  INNER JOIN
-    stops ON from_transfer.stop_id = stops.id
-
+    stops start
+  JOIN
+    routes from_first on start.id = from_first.stop_id
+  JOIN
+    routes to_first on (to_first.num = from_first.num AND to_first.company = from_first.company)
+  JOIN
+    stops t on to_first.stop_id = t.id
+  JOIN
+    routes from_second on t.id = from_second.stop_id
+  JOIN
+    routes to_second on (to_second.num = from_second.num AND to_second.company = from_second.company)
+  JOIN
+    stops finish on finish.id = to_second.stop_id
   WHERE
-  start.stop_id = 53 AND
-  finish.stop_id = 213
-
+    finish.name = 'Sighthill'
+    AND start.name = 'Craiglockhart'
   SQL
 end

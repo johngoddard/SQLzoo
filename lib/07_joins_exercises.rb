@@ -119,22 +119,21 @@ def andrews_films_and_leads
   # Andrews' played in.
   execute(<<-SQL)
   SELECT
-    movies.title,
-    actors.name
+    m.title,
+    a.name
   FROM
-    movies
+    castings ja_castings
   JOIN
-    castings julie_andrews_castings ON movies.id = julie_andrews_castings.movie_id
+    actors ja on ja.id = ja_castings.actor_id
   JOIN
-    actors julie_andrews ON julie_andrews_castings.actor_id = julie_andrews.id
+    castings c ON c.movie_id = ja_castings.movie_id
   JOIN
-    castings ON castings.movie_id = julie_andrews_castings.movie_id
+    actors a ON a.id = c.actor_id
   JOIN
-    actors ON castings.actor_id = actors.id
+    movies m ON m.id = ja_castings.movie_id
   WHERE
-    julie_andrews.name = 'Julie Andrews'
-    AND
-    castings.ord = 1
+    ja.name = 'Julie Andrews'
+    AND c.ord = 1
   SQL
 end
 
@@ -142,20 +141,20 @@ def prolific_actors
   # Obtain a list in alphabetical order of actors who've had at least 15
   # starring roles.
   execute(<<-SQL)
-  SELECT
-    actors.name
-  FROM
-    actors
-  JOIN
-    castings ON castings.actor_id = actors.id
-  WHERE
-    castings.ord = 1
-  GROUP BY
-    actors.name
-  HAVING
-    COUNT(*) >= 15
-  ORDER BY
-    actors.name ASC
+    SELECT
+      a.name
+    FROM
+      actors a
+    JOIN
+      castings c ON c.actor_id = a.id
+    WHERE
+      c.ord = 1
+    GROUP BY
+      a.name
+    HAVING
+      count(1) > 14
+    ORDER BY
+      a.name asc
   SQL
 end
 
@@ -177,10 +176,6 @@ def films_by_cast_size
   ORDER BY
     count(castings.actor_id) DESC,
     title
-
-
-
-
   SQL
 end
 
@@ -188,20 +183,18 @@ def colleagues_of_garfunkel
   # List all the people who have played alongside 'Art Garfunkel'.
   execute(<<-SQL)
   SELECT
-    actors.name
+    a.name
   FROM
-    castings art_garfunkel_castings
+    actors a
   JOIN
-      actors art_garfunkel ON art_garfunkel_castings.actor_id = art_garfunkel.id
-      /*gives every row in casting that art garfunkel is in   */
+    castings c on a.id = c.actor_id
   JOIN
-      castings ON art_garfunkel_castings.movie_id = castings.movie_id
+    castings ag_castings on c.movie_id = ag_castings.movie_id
   JOIN
-      actors ON castings.actor_id = actors.id
-
+    actors ag on ag_castings.actor_id = ag.id
   WHERE
-    art_garfunkel.name = 'Art Garfunkel'
-    AND actors.name != 'Art Garfunkel'
+    ag.name = 'Art Garfunkel'
+    AND a.name != 'Art Garfunkel'
   -- SELECT
   --   actors.name
   -- FROM
