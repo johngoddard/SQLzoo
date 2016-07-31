@@ -50,11 +50,11 @@ def year_of_kane
   # Give year of 'Citizen Kane'.
   execute(<<-SQL)
     SELECT
-    yr
+      yr
     FROM
-    movies
+      movies
     WHERE
-    title = 'Citizen Kane'
+      title = 'Citizen Kane'
   SQL
 end
 
@@ -64,15 +64,15 @@ def trek_films
   # year.
   execute(<<-SQL)
   SELECT
-  id,
-  title,
-  yr
+    id,
+    title,
+    yr
   FROM
-  movies
+    movies
   WHERE
-  title LIKE '%Star Trek%'
+    title like '%Star Trek%'
   ORDER BY
-  yr ASC
+    yr asc
   SQL
 end
 
@@ -80,11 +80,11 @@ def films_by_id
   # What are the titles of the films with id 1119, 1595, 1768?
   execute(<<-SQL)
   SELECT
-  title
+    title
   FROM
-  movies
+    movies
   WHERE
-  id IN ('1119', '1595', '1768')
+    id IN ('1119', '1595', '1768')
   SQL
 end
 
@@ -92,11 +92,11 @@ def glenn_close_id
   # What id number does the actress 'Glenn Close' have?
   execute(<<-SQL)
   SELECT
-  id
+    id
   FROM
-  actors
+    actors
   WHERE
-  name = 'Glenn Close'
+    name = 'Glenn Close'
   SQL
 end
 
@@ -104,11 +104,11 @@ def casablanca_id
   # What is the id of the film 'Casablanca'?
   execute(<<-SQL)
   SELECT
-  id
+    id
   FROM
-  movies
+    movies
   WHERE
-  title = 'Casablanca'
+    title = 'Casablanca'
   SQL
 end
 
@@ -117,19 +117,15 @@ def casablanca_cast
   # in the previous question.
   execute(<<-SQL)
   SELECT
-  actors.name
+    a.name
   FROM
-  castings
+    actors a
   JOIN
-    actors ON castings.actor_id = actors.id
+    castings c ON a.id = c.actor_id
+  JOIN
+    movies m on c.movie_id = m.id
   WHERE
-  castings.movie_id = (SELECT
-                        id
-                        FROM
-                        movies
-                        WHERE
-                        title = 'Casablanca'
-                        )
+    m.title = 'Casablanca'
 SQL
 end
 
@@ -137,18 +133,14 @@ def alien_cast
   # Obtain the cast list for the film 'Alien'
   execute(<<-SQL)
   SELECT
-  actors.name
+    a.name
   FROM
-  castings
+    actors a
   JOIN
-    actors ON castings.actor_id = actors.id
+    castings c ON a.id = c.actor_id
+  JOIN
+    movies m on c.movie_id = m.id
   WHERE
-  castings.movie_id = (SELECT
-                        id
-                        FROM
-                        movies
-                        WHERE
-                        title = 'Alien'
-                        )
+    m.title = 'Alien'
   SQL
 end

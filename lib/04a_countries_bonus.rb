@@ -21,13 +21,14 @@ def highest_gdp
     name
   FROM
     countries
-  WHERE gdp >
-    (SELECT
+  WHERE gdp > (
+    SELECT
       MAX(gdp)
     FROM
       countries
     WHERE
-      continent = 'Europe')
+      continent = 'Europe'
+    )
   SQL
 end
 
@@ -65,7 +66,7 @@ def large_neighbors
   WHERE
     NOT EXISTS (
       SELECT
-      1
+       *
       FROM
         countries b
       WHERE

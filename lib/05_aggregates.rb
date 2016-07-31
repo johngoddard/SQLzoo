@@ -70,7 +70,7 @@ def country_counts
   execute(<<-SQL)
   SELECT
     continent,
-    count(name)
+    count(1)
   FROM
     countries
   GROUP BY
@@ -84,7 +84,7 @@ def populous_country_counts
   execute(<<-SQL)
   SELECT
     continent,
-    count(name)
+    count(1)
   FROM
     countries
   WHERE
@@ -104,6 +104,6 @@ def populous_continents
   GROUP BY
     continent
   HAVING
-    SUM(population) > 100000000
+    sum(population) > 100000000
   SQL
 end

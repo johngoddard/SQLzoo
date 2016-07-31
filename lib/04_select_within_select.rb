@@ -57,17 +57,18 @@ def richer_than_england
   execute(<<-SQL)
   SELECT
     name
-    FROM
+  FROM
     countries
-    WHERE
-      continent = 'Europe' AND
-      GDP / population > (SELECT
-                      GDP / population
-                      FROM
-                      countries
-                      WHERE
-                      name = 'United Kingdom'
-                      )
+  WHERE
+    continent = 'Europe' AND
+    gdp/population > (
+      SELECT
+        gdp/population
+      FROM
+        countries
+      WHERE
+        name = 'United Kingdom'
+    )
   SQL
 end
 
@@ -76,18 +77,14 @@ def neighbors_of_certain_b_countries
   # 'Belize', 'Belgium'.
   execute(<<-SQL)
   SELECT
-    name, continent
+    c.name,
+    c.continent
   FROM
-    countries
+    countries c
+  JOIN
+    countries dos ON c.continent = dos.continent
   WHERE
-    continent IN (SELECT
-                  continent
-                  FROM
-                  countries
-                  WHERE
-                  name IN ('Belize', 'Belgium'))
-
-
+    dos.name IN ('Belize', 'Belgium')
   SQL
 end
 
@@ -101,20 +98,23 @@ def population_constraint
   FROM
     countries
   WHERE
-    population > (SELECT
-                  population
-                FROM
-                countries
-                WHERE
-                name = 'Canada') AND population <
-                                     (SELECT
-                                       population
-                                     FROM
-                                     countries
-                                     WHERE
-                                     name = 'Poland')
-
-  SQL
+    population > (
+      SELECT
+        population
+      FROM
+        countries
+      WHERE
+        name = 'Canada'
+    )
+    AND population < (
+      SELECT
+        population
+      FROM
+        countries
+      WHERE
+        name = 'Poland'
+    )
+    SQL
 end
 
 def sparse_continents
@@ -128,17 +128,17 @@ def sparse_continents
     continent,
     population
   FROM
-      countries
-    WHERE
-      continent in (
-        SELECT
-          continent
-        FROM
-          countries
-        GROUP BY
-          continent
-        HAVING
-          MAX(population) < 25000000
-      )
-    SQL
+    countries c
+  WHERE
+    continent in (
+      SELECT
+        continent
+      FROM
+        countries dos
+      GROUP BY
+        continent
+      HAVING
+        max(population) < 25000000
+    )
+  SQL
 end
