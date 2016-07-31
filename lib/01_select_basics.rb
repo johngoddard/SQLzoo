@@ -37,8 +37,8 @@ def per_capita_gdp
   # the area is over 5,000,000 km^2
   execute(<<-SQL)
   SELECT
-
-    name, gdp/population
+    name,
+    gdp/population
   FROM
     countries
   WHERE

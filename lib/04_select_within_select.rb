@@ -40,12 +40,14 @@ def larger_than_russia
   FROM
     countries
   WHERE
-    population > (SELECT
-                    population
-                    FROM
-                    countries
-                  WHERE
-                    name = 'Russia')
+    population > (
+      SELECT
+        population
+      FROM
+        countries
+      WHERE
+        name = 'Russia'
+    )
   SQL
 end
 
@@ -137,6 +139,6 @@ def sparse_continents
           continent
         HAVING
           MAX(population) < 25000000
-      ) 
+      )
     SQL
 end
